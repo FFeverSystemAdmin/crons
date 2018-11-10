@@ -1,6 +1,6 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+// error_reporting(E_ALL);
+// ini_set('display_errors', 1);
     $base = __DIR__."/" ;
     include realpath($base."Service/deviceService.php");
     include  realpath($base."Service/cronService.php");
