@@ -55,8 +55,8 @@
                 unset($dataArray);
                 $dataArray = array();
                     try{
-                    //$mailer = new Mailer($accountHolderEmail);
-                    $mailer = new Mailer("r.prateek11@gmail.com");
+                    $mailer = new Mailer($accountHolderEmail);
+                    //$mailer = new Mailer("r.prateek11@gmail.com");
                     print_r("Info : Initialised attachment!!\n");
                     $mailer->addAttachmentFile($filePath);// Add attachments
                     $mailer->addSubject('Weekly Distance Report from '.date_format(date_create($fromtime),"Y-m-d").' to '.date_format(date_create($totime),"Y-m-d"));
@@ -106,8 +106,8 @@
                 unset($dataArray);
                 $dataArray = array();
                     try{
-                    //$mailer = new Mailer($accountHolderEmail);
-                    $mailer = new Mailer("r.prateek11@gmail.com");
+                    $mailer = new Mailer($accountHolderEmail);
+                    //$mailer = new Mailer("r.prateek11@gmail.com");
                     print_r("Info : Initialised attachment!!\n");
                     $mailer->addAttachmentFile($filePath);// Add attachments
                     $mailer->addSubject('Weekly Distance Report from '.date_format(date_create($fromtime),"Y-m-d").' to '.date_format(date_create($totime),"Y-m-d"));
