@@ -11,7 +11,7 @@
     require_once  realpath($base.'Model/filehandling.php');
     require_once  realpath($base.'Model/address.php');
     /********* Creating directory *********/
-    $dirpath = dirname(__FILE__)."/logs/DistanceReport-".date('d-m-Y')."/";
+    $dirpath = dirname(__FILE__)."/logs/DistanceWeeklyReport-".date('d-m-Y')."/";
     $mode = "0777";
     if(!is_dir($dirpath)) mkdir($dirpath, $mode, true);
     /********* Created the directory *********/

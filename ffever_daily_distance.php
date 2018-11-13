@@ -11,7 +11,7 @@
     require_once  realpath($base.'Model/filehandling.php');
     require_once  realpath($base.'Model/address.php');
     /********* Creating directory *********/
-    $dirpath = dirname(__FILE__)."/logs/DistanceReport-".date('d-m-Y')."/";
+    $dirpath = dirname(__FILE__)."/logs/DistanceDailyReport-".date('d-m-Y')."/";
     $mode = "0777";
     if(!is_dir($dirpath)) mkdir($dirpath, $mode, true);
     /********* Created the directory *********/
@@ -46,7 +46,7 @@
                 //print_r("Info : Create New File with name $temp_owner_name!!\n");
                 //print_r("************************\n");
                 try{
-                $filePath = $dirpath."Distance weekly Report of ".strtoupper($temp_owner_name).".xlsx";
+                $filePath = $dirpath."Distance daily Report of ".strtoupper($temp_owner_name).".xlsx";
                 $excel = new Excel();
                 $excel->styleExcelSheet();
                 $excel->insertData($dataArray);
@@ -59,7 +59,7 @@
                     $mailer = new Mailer("r.prateek11@gmail.com");
                     print_r("Info : Initialised attachment!!\n");
                     $mailer->addAttachmentFile($filePath);// Add attachments
-                    $mailer->addSubject('Weekly Distance Report from '.date_format(date_create($fromtime),"Y-m-d").' to '.date_format(date_create($totime),"Y-m-d"));
+                    $mailer->addSubject('Daily Distance Report from '.date_format(date_create($fromtime),"Y-m-d").' to '.date_format(date_create($totime),"Y-m-d"));
                     $mailer->addBody('Hello Sir,<br/><br/>A computer generated file is attached.<br/><br/><b>Thanks & Regards</b><br>FFever System Admin');
                     $mailer->send();    
                     }catch(Exception $e){
@@ -97,12 +97,12 @@
                 print_r("Info : Create New File with name $initial_owner!!\n");
                 print_r("************************\n");
                 try{
-                $filePath = $dirpath."Distance weekly Report of ".strtoupper($initial_owner).".xlsx";
+                $filePath = $dirpath."Distance daily Report of ".strtoupper($initial_owner).".xlsx";
                 $excel = new Excel();
                 $excel->styleExcelSheet();
                 $excel->insertData($dataArray);
                 $excel->saveExcelFile($filePath);
-                print_r("Created File : Distance weekly Report of ".strtoupper($initial_owner).".xlsx\n");
+                print_r("Created File : Distance daily Report of ".strtoupper($initial_owner).".xlsx\n");
                 unset($dataArray);
                 $dataArray = array();
                     try{
@@ -110,7 +110,7 @@
                     $mailer = new Mailer("r.prateek11@gmail.com");
                     print_r("Info : Initialised attachment!!\n");
                     $mailer->addAttachmentFile($filePath);// Add attachments
-                    $mailer->addSubject('Weekly Distance Report from '.date_format(date_create($fromtime),"Y-m-d").' to '.date_format(date_create($totime),"Y-m-d"));
+                    $mailer->addSubject('Daily Distance Report from '.date_format(date_create($fromtime),"Y-m-d").' to '.date_format(date_create($totime),"Y-m-d"));
                     $mailer->addBody('Hello Sir,<br/><br/>A computer generated file is attached.<br/><br/><b>Thanks & Regards</b><br>FFever System Admin');
                     $mailer->send();    
                     }catch(Exception $e){
