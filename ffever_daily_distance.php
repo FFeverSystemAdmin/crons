@@ -115,7 +115,7 @@
 
         $cron = new Cron();
         $cronService = new CronService();
-        $cron->setId(1);
+        $cron->setId(2);
         $cron->setStatus("Cron Run Successfully");
         if($cronService->update($cron)){
             echo "Cron Status Updated Successfully!!";
@@ -132,15 +132,16 @@
             $mailer->addSubject('Daily Distance Report from '.date_format(date_create($fromtime),"Y-m-d").' to '.date_format(date_create($totime),"Y-m-d"));
             $mailer->addBody('Hello Sir,<br/><br/>A computer generated file is attached.<br/><br/><b>Thanks & Regards</b><br>FFever System Admin');
             $mailer->send();
-            FileHandling::emptyFolder($base."logs/");
         }
         else
             echo "Cron Status Updation Failed";
     }catch(Exception $e){
         $cron = new Cron();
         $cronService = new CronService();
-        $cron->setId(1);
+        $cron->setId(2);
         $cron->setStatus("Error: ".$e->getMessage());
         $cronService->update($cron);
     }
+
+    FileHandling::emptyFolder($base."logs/");
 ?>
