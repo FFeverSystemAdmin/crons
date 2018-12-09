@@ -1,6 +1,6 @@
 <?php 
 
-error_reporting(E_ALL);
+//error_reporting(E_ALL);
 $base = __DIR__."/" ;
 include realpath($base."header.php");
 /********* Creating directory *********/
@@ -49,8 +49,8 @@ foreach ($userArray as $key => $value) {
       unset($dataArray);
       $dataArray = array();
           try{
-          //$mailer = new Mailer($value->getUserAccountEmail());
-          $mailer = new Mailer("r.prateek11@gmail.com");
+          $mailer = new Mailer($value->getUserAccountEmail());
+          // $mailer = new Mailer("r.prateek11@gmail.com");
           $mailer->addAttachmentFile($filePath);// Add attachments
           $mailer->addSubject('Daily Distance Report from '.date_format(date_create($fromtime),"Y-m-d").' to '.date_format(date_create($totime),"Y-m-d"));
           $mailer->addBody('Hello Sir,<br/><br/>A computer generated file is attached.<br/><br/><b>Thanks & Regards</b><br>FFever System Admin');
@@ -70,8 +70,8 @@ $cron->setId(2);
 $cron->setStatus("Cron Run Successfully");
 if($cronService->update($cron)){
     echo "Cron Status Updated Successfully!!";
-    //$mailer = new Mailer("team@ffever.in");
-    $mailer = new Mailer("r.prateek11@gmail.com");
+    $mailer = new Mailer("team@ffever.in");
+    // $mailer = new Mailer("r.prateek11@gmail.com");
     $zipArchive = new ZipArchive();
     $zipFile=dirname(__FILE__)."/logs/DistanceDailyReport-".date('d-m-Y')."/DistanceDailyReport-".date('d-m-Y').".zip";
     if (!$zipArchive->open($zipFile, ZipArchive::CREATE | ZIPARCHIVE::OVERWRITE))

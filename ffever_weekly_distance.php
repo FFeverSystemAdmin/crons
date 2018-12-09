@@ -1,7 +1,7 @@
 <?php 
 
 
-error_reporting(E_ALL);
+//error_reporting(E_ALL);
 $base = __DIR__."/" ;
 include realpath($base."header.php");
 /********* Creating directory *********/
