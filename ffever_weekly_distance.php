@@ -65,7 +65,7 @@ foreach ($userArray as $key => $value) {
 
 $cron = new Cron();
 $cronService = new CronService();
-$cron->setId(2);
+$cron->setId(1);
 $cron->setStatus("Cron Run Successfully");
 if($cronService->update($cron)){
     echo "Cron Status Updated Successfully!!";
