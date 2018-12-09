@@ -1,152 +1,89 @@
-<?php
-// error_reporting(E_ALL);
-// ini_set('display_errors', 1);
-    $base = __DIR__."/" ;
-    include realpath($base."Service/deviceService.php");
-    include  realpath($base."Service/cronService.php");
-    require_once  realpath($base."Core/database.php");
-    require_once  realpath($base.'Model/mailer.php');
-    require_once  realpath($base.'Model/cron.php');
-    require_once  realpath($base.'Model/excel.php');
-    require_once  realpath($base.'Model/filehandling.php');
-    require_once  realpath($base.'Model/address.php');
-    /********* Creating directory *********/
-    $dirpath = dirname(__FILE__)."/logs/DistanceWeeklyReport-".date('d-m-Y')."/";
-    $mode = "0777";
-    if(!is_dir($dirpath)) mkdir($dirpath, $mode, true);
-    /********* Created the directory *********/
+<?php 
 
-    /********* Creating DeviceService object and fetching all the device list *********/
-    print_r("Info : Created new entity object\n");
-    $data = new DeviceService();
-    print_r("Info : Getting all the data from the database\n");
-    $stmt=$data->getAllDevice();
-    /********* Created DeviceService object and stored all the device list in the $stmt variable*********/
-   
-    
-    $index =2;
+$base = __DIR__."/" ;
+include realpath($base."header.php");
+/********* Creating directory *********/
+$dirpath = dirname(__FILE__)."/logs/DistanceDailyReport-".date('d-m-Y')."/";
+$mode = "0777";
+if(!is_dir($dirpath)) mkdir($dirpath, $mode, true);
+/********* Created the directory *********/
+
+/********* Creating DeviceService object and fetching all the device list *********/
+print_r("Info : Created new entity object\n");
+$userList = new UserService();
+$userArray=$userList->getAllUser();
+$deviceService = new DeviceService();
+$totime = date('Y-m-d H:i:s');
+$fromtime = date('Y-m-d H:i:s', strtotime('-7 days'));
+print_r("Info : Getting all the data from the database\n");
+/********* Created DeviceService object and stored all the device list in the $stmt variable*********/
+foreach ($userArray as $key => $value) {
+    $deviceList = $deviceService->getDeviceListByUser($value->getUserAccountName());
+    print_r("User => ".$value->getUserAccountName());
     $dataArray = array();
-    $initial_owner = "";
-    $previous_owner = NULL;
-    $temp_owner_name = "";
-    $totime = date('Y-m-d H:i:s');
-    $fromtime = date('Y-m-d H:i:s', strtotime('-7 days'));
-    
-    try{
-        while($row = $stmt->fetch()){
-            extract($row);
-            $initial_owner = $deviceCreatedFor;
-            if( $previous_owner != $initial_owner && $previous_owner !=NULL){
-                $temp_owner_name = $previous_owner;
-                $previous_owner = NULL;
-            }
-
-            if(($previous_owner == NULL && !empty($dataArray) )){
-                //print_r("************************\n");
-                //print_r("Info : Create New File with name $temp_owner_name!!\n");
-                //print_r("************************\n");
-                try{
-                $filePath = $dirpath."Distance weekly Report of ".strtoupper($temp_owner_name).".xlsx";
-                $excel = new Excel();
-                $excel->styleExcelSheet();
-                $excel->insertData($dataArray);
-                $excel->saveExcelFile($filePath);
-                //print_r("Created File : Distance weekly Report of ".strtoupper($temp_owner_name).".xlsx\n");
-                unset($dataArray);
-                $dataArray = array();
-                    try{
-                    $mailer = new Mailer($accountHolderEmail);
-                    // print_r("Info : Initialised attachment!!\n");
-                    $mailer->addAttachmentFile($filePath);// Add attachments
-                    $mailer->addSubject('Weekly Distance Report from '.date_format(date_create($fromtime),"Y-m-d").' to '.date_format(date_create($totime),"Y-m-d"));
-                    $mailer->addBody('Hello Sir,<br/><br/>A computer generated file is attached.<br/><br/><b>Thanks & Regards</b><br>FFever System Admin');
-                    $mailer->send();    
-                    }catch(Exception $e){
-                        echo 'Error: ' .$e->getMessage();   
-                    }
-                }catch(Exception $e){
-                echo 'Error: ' .$e->getMessage();
-                }
-            }
-            // print_r("Inital Owner :$initial_owner\n");
-            // print_r("Info: Device Id =>".$deviceID."\n");
-            // print_r("Info: Vehicle Plate Number =>".$deviceVehiclePlateNumber."\n");
-            // print_r("Info: User Alloted =>".$deviceCreatedFor."\n");
-            // print_r("Info: User Email =>".$accountHolderEmail."\n");
-            $distanceData = $data->getDistancePlusLatLng($deviceID,$fromtime,$totime);
-            $distance =round((float)$distanceData["distance"],2);
-            $lat = (float)$distanceData["lat"];
-            $lng = (float)$distanceData["lng"];
-            $address = Address::getAddressByLatLng($lat.",".$lng);
-            // print_r("Info: Distance =>".$distance."\n");
-            array_push(
-            $dataArray,array(
-                $deviceVehiclePlateNumber,
-                $fromtime,
-                $totime,
-                ($distance != 0 ? $distance: "0"),
-                ($address != null ? $address : "N/A"))
-            );
-            $previous_owner = $initial_owner;
-            // print_r("Previous owner :$previous_owner\n");
-            // print_r("*******************************\n");
-        }
-
-                // print_r("************************\n");
-                // print_r("Info : Create New File with name $initial_owner!!\n");
-                // print_r("************************\n");
-                try{
-                $filePath = $dirpath."Distance weekly Report of ".strtoupper($initial_owner).".xlsx";
-                $excel = new Excel();
-                $excel->styleExcelSheet();
-                $excel->insertData($dataArray);
-                $excel->saveExcelFile($filePath);
-                print_r("Created File : Distance weekly Report of ".strtoupper($initial_owner).".xlsx\n");
-                unset($dataArray);
-                $dataArray = array();
-                    try{
-                    $mailer = new Mailer($accountHolderEmail);
-                    
-                    
-                    $mailer->addAttachmentFile($filePath);// Add attachments
-                    $mailer->addSubject('Weekly Distance Report from '.date_format(date_create($fromtime),"Y-m-d").' to '.date_format(date_create($totime),"Y-m-d"));
-                    $mailer->addBody('Hello Sir,<br/><br/>A computer generated file is attached.<br/><br/><b>Thanks & Regards</b><br>FFever System Admin');
-                    $mailer->send();    
-                    }catch(Exception $e){
-                    echo 'Error: ' .$e->getMessage();   
-                    }
-                }catch(Exception $e){
-                echo 'Error: ' .$e->getMessage();
-                }
-
-        $cron = new Cron();
-        $cronService = new CronService();
-        $cron->setId(1);
-        $cron->setStatus("Cron Run Successfully");
-        if($cronService->update($cron)){
-            echo "Cron Status Updated Successfully!!";
-            $mailer = new Mailer("team@ffever.in");
-            $zipArchive = new ZipArchive();
-            $zipFile=dirname(__FILE__)."/logs/DistanceWeeklyReport-".date('d-m-Y')."/DistanceWeeklyReport-".date('d-m-Y').".zip";
-            if (!$zipArchive->open($zipFile, ZipArchive::CREATE | ZIPARCHIVE::OVERWRITE))
-                die("Failed to create archive\n");
-            $zipArchive->addGlob("logs/DistanceWeeklyReport-".date('d-m-Y')."/*.xlsx");
-            if (!$zipArchive->status == ZIPARCHIVE::ER_OK)
-                echo "Failed to write files to zip\n";
-            $zipArchive->close();
-            $mailer->addAttachmentFile($zipFile);// Add attachments
-            $mailer->addSubject('Weekly Distance Report from '.date_format(date_create($fromtime),"Y-m-d").' to '.date_format(date_create($totime),"Y-m-d"));
-            $mailer->addBody('Hello Sir,<br/><br/>A computer generated file is attached.<br/><br/><b>Thanks & Regards</b><br>FFever System Admin');
-            $mailer->send();    
-            FileHandling::emptyFolder($base."logs/");
-        }
-        else
-            echo "Cron Status Updation Failed";
-    }catch(Exception $e){
-        $cron = new Cron();
-        $cronService = new CronService();
-        $cron->setId(1);
-        $cron->setStatus("Error: ".$e->getMessage());
-        $cronService->update($cron);
+    foreach ($deviceList as $devicekey => $devicevalue) {
+        print_r("\nDeviceId => ".$devicevalue->getDeviceId()."\n");
+        $distanceData = $deviceService->getDistancePlusLatLng($devicevalue->getDeviceId(),$fromtime,$totime);
+        $devicevalue->setDistance(round((float)$distanceData["distance"],2));
+        $devicevalue->setLat((float)$distanceData["lat"]);
+        $devicevalue->setLng((float)$distanceData["lng"]);
+        if($devicevalue->getDistance()>0)
+          $devicevalue->setLastLocation(Address::getAddressByLatLng($devicevalue->getLat().",".$devicevalue->getLng()));
+        array_push($dataArray, 
+          array(
+            $devicevalue->getDeviceVehiclePlateNumber(),
+            $fromtime,
+            $totime,
+            ($devicevalue->getDistance()!=0?$devicevalue->getDistance(): "0"),
+            ($devicevalue->getLastLocation()!=null?$devicevalue->getLastLocation(): "N/A"),
+            )
+        );
     }
-?>
+    try{
+      $filePath = $dirpath."Distance daily Report of ".strtoupper($value->getUserAccountName()).".xlsx";
+      $excel = new Excel();
+      $excel->styleExcelSheet();
+      $excel->insertData($dataArray);
+      $excel->saveExcelFile($filePath);
+      unset($dataArray);
+      $dataArray = array();
+          try{
+          $mailer = new Mailer($value->getUserAccountEmail());
+          // $mailer = new Mailer("r.prateek11@gmail.com");
+          $mailer->addAttachmentFile($filePath);// Add attachments
+          $mailer->addSubject('Daily Distance Report from '.date_format(date_create($fromtime),"Y-m-d").' to '.date_format(date_create($totime),"Y-m-d"));
+          $mailer->addBody('Hello Sir,<br/><br/>A computer generated file is attached.<br/><br/><b>Thanks & Regards</b><br>FFever System Admin');
+          $mailer->send();    
+          }catch(Exception $e){
+              echo 'Error: ' .$e->getMessage();   
+          }
+      }catch(Exception $e){
+      echo 'Error: ' .$e->getMessage();
+      }
+    break;    
+  }
+
+$cron = new Cron();
+$cronService = new CronService();
+$cron->setId(2);
+$cron->setStatus("Cron Run Successfully");
+if($cronService->update($cron)){
+    echo "Cron Status Updated Successfully!!";
+    $mailer = new Mailer("team@ffever.in");
+    // $mailer = new Mailer("r.prateek11@gmail.com");
+    $zipArchive = new ZipArchive();
+    $zipFile=dirname(__FILE__)."/logs/DistanceDailyReport-".date('d-m-Y')."/DistanceDailyReport-".date('d-m-Y').".zip";
+    if (!$zipArchive->open($zipFile, ZipArchive::CREATE | ZIPARCHIVE::OVERWRITE))
+        die("Failed to create archive\n");
+    $zipArchive->addGlob("logs/DistanceDailyReport-".date('d-m-Y')."/*.xlsx");
+    if (!$zipArchive->status == ZIPARCHIVE::ER_OK)
+        echo "Failed to write files to zip\n";
+    $zipArchive->close();
+    $mailer->addAttachmentFile($zipFile);// Add attachments
+    $mailer->addSubject('Daily Distance Report from '.date_format(date_create($fromtime),"Y-m-d").' to '.date_format(date_create($totime),"Y-m-d"));
+    $mailer->addBody('Hello Sir,<br/><br/>A computer generated file is attached.<br/><br/><b>Thanks & Regards</b><br>FFever System Admin');
+    $mailer->send();
+    FileHandling::emptyFolder($base."logs/");
+}
+else
+    echo "Cron Status Updation Failed";
