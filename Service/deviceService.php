@@ -22,6 +22,10 @@
         function getDistancePlusLatLng($deviceId,$fromTime,$toTime){
             return $this->deviceDAO->getDistancePlusLatLng($deviceId,$fromTime,$toTime);
         }
+
+        function getDeviceListByUser($accountName){
+            return $this->deviceDAO->getDeviceListByUser($accountName);
+        }
     }
     
 
