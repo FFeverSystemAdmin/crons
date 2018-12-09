@@ -1,5 +1,7 @@
 <?php 
 
+
+error_reporting(E_ALL);
 $base = __DIR__."/" ;
 include realpath($base."header.php");
 /********* Creating directory *********/
@@ -60,7 +62,7 @@ foreach ($userArray as $key => $value) {
       }catch(Exception $e){
       echo 'Error: ' .$e->getMessage();
       }
-    break;    
+    
   }
 
 $cron = new Cron();
